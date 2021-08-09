@@ -1,6 +1,7 @@
 package com.dawson.nat.baselib.net;
 
 import com.dawson.nat.baselib.ExecutorUtil;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,7 +15,7 @@ import java.util.function.Function;
  *
  * @author dawson
  */
-public class AbstractClient {
+public abstract class AbstractClient {
     private SocketChannel socket;
     /**
      * 服务端ip
@@ -72,7 +73,7 @@ public class AbstractClient {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } while (isWork);
+            } while (isWork && isAutoReconnect);
             if (isWork) {
                 //连接成功
                 startReceiveData();
@@ -127,21 +128,9 @@ public class AbstractClient {
         });
     }
 
-    private Function<byte[], Object> dataCallback;
 
-    /**
-     * 客户端收到数据回调
-     */
-    public void registerOnDataReceived(Function<byte[], Object> callback) {
-        this.dataCallback = callback;
-    }
-
-    public void handleData() {
-        byte[] t = new byte[buffer.remaining()];
-        buffer.get(t);
-        if (dataCallback != null) {
-            dataCallback.apply(t);
-        }
+    protected void handleData() {
+        buffer.clear();
     }
 
     /**
@@ -159,6 +148,10 @@ public class AbstractClient {
         } finally {
             onClose();
         }
+    }
+
+    public boolean sendData(BaseCmdWrap basedata) {
+        return sendData(basedata.encode());
     }
 
     public boolean sendData(byte[] data) {

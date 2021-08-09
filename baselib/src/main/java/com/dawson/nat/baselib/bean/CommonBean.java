@@ -14,87 +14,33 @@ public class CommonBean {
 
 
     /**
-     * 告警相关常量
+     * 控制命令相关常量
      */
-    public static class AlarmConst {
+    public static class ControlTypeConst {
         /**
-         * 告警产生
+         * 终端注册信息
          */
-        public static final int TYPE_OCCUR = 0;
+        public static final byte TYPE_REG_INFO = 1;
         /**
-         * 告警恢复
+         * 新客户端连接请求
          */
-        public static final int TYPE_RECOVER = 1;
-        /**
-         * 事件
-         */
-        public static final int TYPE_EVENT = 2;
-        /**
-         * 模块
-         */
-        public static final int TYPE_MODULE = 3;
-        /**
-         * 告警级别-一般信息
-         */
-        public static final int LEVEL_INFO = 0;
-        /**
-         * 告警级别-告警
-         */
-        public static final int LEVEL_WARN = 1;
-        /**
-         * 告警级别-错误
-         */
-        public static final int LEVEL_ERROR = 2;
-        /**
-         * 告警级别-严重错误
-         */
-        public static final int LEVEL_FATAL = 3;
-        /**
-         * 告警恢复的原因：收到某条未恢复告警的恢复告警
-         */
-        public static final int RECOVER_TYPE_RECOVER = 1;
-        /**
-         * 告警恢复的原因：模块重启后收到的恢复告警
-         */
-        public static final int RECOVER_TYPE_REBOOT = 2;
+        public static final byte TYPE_NEW_CONN = 2;
 
-        public static final long ID_REBOOT_RECOVER = 4294967294L;
     }
 
-    public static class VehicleStateConst {
-        public static final String STATE_AUTO = "auto";
+    public static class SessionStateConst {
         /**
-         * 手动
+         * 准备就绪
          */
-        public static final String STATE_MANUAL = "manual";
-        /**
-         * 跟随 暂不使用
-         */
-        @Deprecated
-        public static final String STATE_AOA = "aoa";
-
         public static final String STATE_READY = "ready";
-
-        public static final String STATE_LOCK = "lock";
         /**
-         * 故障态
+         * 运行中
          */
-        public static final String STATE_FAULT = "fault";
-
+        public static final String STATE_RUNNING = "running";
         /**
-         * 维护模式
+         * 已经结束关闭
          */
-        public static final String MODE_M = "maintenance";
-        /**
-         * 运营模式
-         */
-        public static final String MODE_O = "operation";
-
-        /**
-         * 解锁命令
-         */
-        public static final String CMD_UNLOCK = "unlock";
-
+        public static final String STATE_CLOSE = "close";
     }
 
     /**

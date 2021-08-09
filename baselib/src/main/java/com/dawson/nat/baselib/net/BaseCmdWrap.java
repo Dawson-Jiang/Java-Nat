@@ -27,22 +27,39 @@ public class BaseCmdWrap {
      * json字符串数据
      */
     private String stringValue;
+    /**
+     * 数据对象
+     */
+    private Object objValue;
 
     public BaseCmdWrap() {
     }
 
     public BaseCmdWrap(byte type, Object d) {
-        init(type, new Gson().toJson(d));
+        init(type, d);
     }
 
     public BaseCmdWrap(byte type, String d) {
         init(type, d);
     }
 
+    public BaseCmdWrap(byte type, byte[] d) {
+        init(type, d);
+    }
+
+    private void init(byte type, Object d) {
+        this.objValue = d;
+        init(type, new Gson().toJson(d));
+    }
+
     private void init(byte type, String d) {
-        this.type = type;
         this.stringValue = d;
-        this.value = d.getBytes();
+        init(type, d.getBytes());
+    }
+
+    private void init(byte type, byte[] d) {
+        this.type = type;
+        this.value = d;
     }
 
     public byte[] encode() {
@@ -117,5 +134,13 @@ public class BaseCmdWrap {
 
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
+    }
+
+    public Object getObjValue() {
+        return objValue;
+    }
+
+    public void setObjValue(Object objValue) {
+        this.objValue = objValue;
     }
 }
