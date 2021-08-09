@@ -73,4 +73,9 @@ public class TerminalAndClientInfo implements Serializable, Comparable<TerminalA
     public void setPort(short port) {
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return id + "," + name + "," + mac + "," + ip;
+    }
 }

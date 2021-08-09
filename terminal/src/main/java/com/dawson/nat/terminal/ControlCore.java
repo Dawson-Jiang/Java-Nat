@@ -11,6 +11,7 @@ import java.util.function.Function;
 
 /**
  * 处理 控制命令 的核心逻辑
+ * @author dawson
  */
 public class ControlCore {
     private SessionManager sessionManager = new SessionManager();

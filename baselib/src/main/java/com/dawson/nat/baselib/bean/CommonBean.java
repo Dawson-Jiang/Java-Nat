@@ -25,6 +25,14 @@ public class CommonBean {
          * 新客户端连接请求
          */
         public static final byte TYPE_NEW_CONN = 2;
+        /**
+         * 获取注册的终端
+         */
+        public static final byte TYPE_GET_TERMINALS = 3;
+        /**
+         * 获取支持的命令配置
+         */
+        public static final byte TYPE_GET_CMD_CONFIGS = 4;
 
     }
 
