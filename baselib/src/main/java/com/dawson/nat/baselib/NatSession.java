@@ -1,33 +1,39 @@
 package com.dawson.nat.baselib;
 
+import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
 import com.dawson.nat.baselib.net.AbstractClient;
 import com.dawson.nat.baselib.net.BaseCmdWrap;
+import com.dawson.nat.baselib.net.ControlClient;
+import com.dawson.nat.baselib.net.TransportClient;
 
 import java.util.Objects;
 import java.util.function.Function;
 
 /**
  * 一次连接会话
+ *
+ * @author dawson
  */
 public class NatSession {
     /**
      * 会话id
      */
     private String id;
-    private TerminalAndClientInfo client1Info;
+    private ClientWrap clientWrap1;
     /**
      * 绑定的客户端1 数据转发到客户端2
      */
-    protected AbstractClient client1;
+    protected TransportClient client1;
 
-    private TerminalAndClientInfo client2Info;
+    private ClientWrap clientWrap2;
     /**
      * 绑定的客户端2 数据转发到客户端1
      */
-    protected AbstractClient client2;
+    protected TransportClient client2;
 
+    private CmdConfig config;
     /**
      * 会话状态
      */
@@ -41,22 +47,6 @@ public class NatSession {
         this.id = id;
     }
 
-    public TerminalAndClientInfo getClient1Info() {
-        return client1Info;
-    }
-
-    public void setClient1Info(TerminalAndClientInfo client1Info) {
-        this.client1Info = client1Info;
-    }
-
-    public TerminalAndClientInfo getClient2Info() {
-        return client2Info;
-    }
-
-    public void setClient2Info(TerminalAndClientInfo client2Info) {
-        this.client2Info = client2Info;
-    }
-
     public String getState() {
         return state;
     }
@@ -65,13 +55,64 @@ public class NatSession {
         this.state = state;
     }
 
-    protected Function<NatSession,Object>  closeCallback;
+    public synchronized void start() {
+        if (client2 == null || client1 == null) {
+            return;
+        }
+        if (getState().equals(CommonBean.SessionStateConst.STATE_RUNNING) ||
+                getState().equals(CommonBean.SessionStateConst.STATE_CLOSE)) {
+            return;
+        }
+        client2.registerConnect(new Function<Boolean, Object>() {
+            @Override
+            public Object apply(Boolean aBoolean) {
+                if (!aBoolean) {
+                    closeSession();
+                }
+                return true;
+            }
+        });
+        client2.registerOnDataReceived(new Function<byte[], Object>() {
+            @Override
+            public Object apply(byte[] bytes) {
+                return client1.sendData(bytes);
+            }
+        });
+
+        client1.registerConnect(new Function<Boolean, Object>() {
+            @Override
+            public Object apply(Boolean aBoolean) {
+                if (aBoolean) {
+                    closeSession();
+                }
+                return true;
+            }
+        });
+        client1.registerOnDataReceived(new Function<byte[], Object>() {
+            @Override
+            public Object apply(byte[] bytes) {
+                return client2.sendData(bytes);
+            }
+        });
+        state = CommonBean.SessionStateConst.STATE_RUNNING;
+    }
+
+    protected Function<NatSession, Object> closeCallback;
 
     /**
-     * 客户端收到数据回调
+     * 关闭会话回调
      */
     public void registerOnClosed(Function<NatSession, Object> callback) {
         this.closeCallback = callback;
+    }
+
+    protected void closeSession() {
+        setState(CommonBean.SessionStateConst.STATE_CLOSE);
+        client1.close();
+        client2.close();
+        if (closeCallback != null) {
+            closeCallback.apply(this);
+        }
     }
 
     @Override
@@ -89,5 +130,29 @@ public class NatSession {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public CmdConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(CmdConfig config) {
+        this.config = config;
+    }
+
+    public ClientWrap getClientWrap1() {
+        return clientWrap1;
+    }
+
+    public void setClientWrap1(ClientWrap clientWrap1) {
+        this.clientWrap1 = clientWrap1;
+    }
+
+    public ClientWrap getClientWrap2() {
+        return clientWrap2;
+    }
+
+    public void setClientWrap2(ClientWrap clientWrap2) {
+        this.clientWrap2 = clientWrap2;
     }
 }

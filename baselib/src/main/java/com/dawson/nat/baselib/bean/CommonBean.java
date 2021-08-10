@@ -22,7 +22,7 @@ public class CommonBean {
          */
         public static final byte TYPE_REG_INFO = 1;
         /**
-         * 新客户端连接请求
+         * 客户端请求新连接
          */
         public static final byte TYPE_NEW_CONN = 2;
         /**
@@ -30,10 +30,9 @@ public class CommonBean {
          */
         public static final byte TYPE_GET_TERMINALS = 3;
         /**
-         * 获取支持的命令配置
+         * 命令透传连接
          */
-        public static final byte TYPE_GET_CMD_CONFIGS = 4;
-
+        public static final byte TYPE_NEW_CMD_CONN = 4;
     }
 
     public static class SessionStateConst {

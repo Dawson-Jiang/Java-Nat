@@ -1,6 +1,7 @@
 package com.dawson.nat.user;
 
 import com.dawson.nat.baselib.GLog;
+import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
 
 import java.io.BufferedReader;
@@ -38,30 +39,31 @@ public class UserCore {
     }
 
     private static void handleCmd(String[] cmd) {
-        if (cmd[0].equals("-e")) {
+        if (cmd[0].equals("exit")) {
             System.exit(0);
-        } else if (cmd[0].equals("-l")) {
+        } else if (cmd[0].equals("ts")) {
             controlCore.getTerminals();
-        } else if (cmd[0].equals("-c")) {
-            controlCore.getCmdConfigs();
-        } else if (cmd[0].equals("-n")) {
-            if (cmd.length < 3) {
-                GLog.println("cmd param error");
-                return;
-            }
-            controlCore.newClient(Integer.parseInt(cmd[1]), cmd[2]);
-        } else if (cmd[0].equals("-h")) {
+        } else if (cmd[0].equals("cs")) {
+            controlCore.printConfigs();
+        } else if (cmd[0].equals("h") || cmd[0].equals("help")) {
             printHelp();
         } else {
+            for (CmdConfig config : controlCore.configs) {
+                if (cmd[0].equals(config.getCmd())) {
+                    GLog.println("start conn...");
+                    controlCore.newClient(Integer.parseInt(cmd[1]), cmd[0]);
+                    return;
+                }
+            }
             GLog.println("unknown cmd");
         }
     }
 
     private static void printHelp() {
-        GLog.println("-l 列表已经注册的终端");
-        GLog.println("-c 查看支持的命令配置");
-        GLog.println("-n num cmd ,发起连接 num终端列表中的序号，cmd命令 如ssh");
-        GLog.println("-h 查看帮助");
-        GLog.println("-e 退出");
+        GLog.println("ts 列表已经注册的终端");
+        GLog.println("cs 查看支持的命令配置");
+        GLog.println("cmd num ,发起连接cmd命令 如ssh,num终端列表中的序号");
+        GLog.println("h|help 查看帮助");
+        GLog.println("exit 退出");
     }
 }

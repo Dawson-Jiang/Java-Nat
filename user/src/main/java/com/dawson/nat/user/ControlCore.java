@@ -6,12 +6,14 @@ import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
 import com.dawson.nat.baselib.net.BaseCmdWrap;
 import com.dawson.nat.baselib.net.ControlClient;
+import com.dawson.nat.baselib.net.SocketServer;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.function.Function;
 
@@ -24,13 +26,22 @@ public class ControlCore {
     private ControlClient controlClient = new ControlClient();
     private boolean isConnect;
     private TerminalAndClientInfo clientInfo;
+    private Gson gson = new Gson();
+    private SessionManager sessionManager = new SessionManager();
+    public static final String SERVER_IP = "192.168.3.4";
+    public static final short SERVER_PORT = 5025;
+
+    /**
+     * 监听服务
+     */
+    private SocketServer controlServer;
 
     /**
      * 启动客户端 连接控制服务
      */
     public void start() {
-        controlClient.init("192.168.3.4", 5025);
-        controlClient.registerOnDataReceived(new Function<BaseCmdWrap, Object>() {
+        controlClient.init(SERVER_IP, SERVER_PORT);
+        controlClient.addOnDataReceived(new Function<BaseCmdWrap, Object>() {
             @Override
             public Object apply(BaseCmdWrap baseCmdWrap) {
                 handleData(baseCmdWrap);
@@ -50,6 +61,16 @@ public class ControlCore {
             }
         });
         controlClient.start();
+
+        controlServer = new SocketServer();
+        controlServer.init(5025);
+        controlServer.registerOnClientConnect(new Function<SocketChannel, Boolean>() {
+            @Override
+            public Boolean apply(SocketChannel socketChannel) {
+                sessionManager.newCmdConn(socketChannel);
+                return true;
+            }
+        });
     }
 
     /**
@@ -65,11 +86,6 @@ public class ControlCore {
         controlClient.sendData(baseCmdWrap);
     }
 
-    public void getCmdConfigs() {
-        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_GET_CMD_CONFIGS, "");
-        controlClient.sendData(baseCmdWrap);
-    }
-
     /**
      * 发起新连接
      */
@@ -77,10 +93,11 @@ public class ControlCore {
         TerminalAndClientInfo clientInfo = infos.get(num);
 
         JsonObject req = new JsonObject();
-        req.addProperty("client_id", clientInfo.getId());
+        req.addProperty("terminalId", clientInfo.getId());
         req.addProperty("cmd", cmd);
         BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CONN, req);
         controlClient.sendData(baseCmdWrap);
+
         //带参数启动客户端
         try {
             Thread.sleep(2000);
@@ -112,12 +129,27 @@ public class ControlCore {
             }.getType());
             //打印信息
             printInfos();
-        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_GET_CMD_CONFIGS) {
-            configs = new Gson().fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<CmdConfig>>() {
+        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_REG_INFO) {
+            //回复配置信息
+            configs = gson.fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<CmdConfig>>() {
             }.getType());
-            //打印信息
-            printConfigs();
+        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CONN) {
+            JsonObject jsonObject
+                    = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
+            String sessionId = jsonObject.getAsJsonObject("sessionId").getAsString();
+            String cmd = jsonObject.getAsJsonObject("cmd").getAsString();
+
+            sessionManager.createSession(controlClient,sessionId, findConfig(cmd));
         }
+    }
+
+    private CmdConfig findConfig(String cmd) {
+        for (CmdConfig config : configs) {
+            if (config.getCmd().equals(cmd)) {
+                return config;
+            }
+        }
+        return null;
     }
 
     public void setClientInfo(TerminalAndClientInfo clientInfo) {
@@ -131,8 +163,12 @@ public class ControlCore {
         }
     }
 
-    private void printConfigs() {
+    public void printConfigs() {
         System.out.print("support cmd:");
+        if (configs == null || configs.size() <= 0) {
+            System.out.print("null");
+            return;
+        }
         for (int i = 0; i < configs.size(); i++) {
             System.out.print(configs.get(i).getCmd() + " ");
         }

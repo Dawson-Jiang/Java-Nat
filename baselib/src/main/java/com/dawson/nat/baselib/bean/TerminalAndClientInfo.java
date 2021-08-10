@@ -13,15 +13,16 @@ public class TerminalAndClientInfo implements Serializable, Comparable<TerminalA
      * id
      */
     private String id;
+    /**
+     * 类型 terminal or user
+     */
+    private String type;
 
     /**
      * 名称
      */
     private String name;
-    /**
-     * mac
-     */
-    private String mac;
+
     private String ip;
     private short port;
 
@@ -50,14 +51,6 @@ public class TerminalAndClientInfo implements Serializable, Comparable<TerminalA
         this.name = name;
     }
 
-    public String getMac() {
-        return mac;
-    }
-
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
     public String getIp() {
         return ip;
     }
@@ -76,6 +69,14 @@ public class TerminalAndClientInfo implements Serializable, Comparable<TerminalA
 
     @Override
     public String toString() {
-        return id + "," + name + "," + mac + "," + ip;
+        return id + "," + name  + "," + ip;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

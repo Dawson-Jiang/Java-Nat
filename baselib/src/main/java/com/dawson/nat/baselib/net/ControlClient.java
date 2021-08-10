@@ -1,5 +1,6 @@
 package com.dawson.nat.baselib.net;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -12,21 +13,30 @@ public class ControlClient extends AbstractClient {
         setAutoReconnect(true);
     }
 
-    private Function<BaseCmdWrap, Object> dataCallback;
+    private List<Function<BaseCmdWrap, Object>> dataCallbacks;
 
     /**
      * 客户端收到数据回调
      */
-    public void registerOnDataReceived(Function<BaseCmdWrap, Object> callback) {
-        this.dataCallback = callback;
+    public void addOnDataReceived(Function<BaseCmdWrap, Object> callback) {
+        this.dataCallbacks.add(callback);
+    }
+
+    /**
+     * 客户端收到数据回调
+     */
+    public void removeOnDataReceived(Function<BaseCmdWrap, Object> callback) {
+        this.dataCallbacks.remove(callback);
     }
 
     @Override
     protected void handleData() {
         BaseCmdWrap cmd = new BaseCmdWrap();
         cmd.decode(buffer);
-        if (dataCallback != null) {
-            dataCallback.apply(cmd);
+        if (dataCallbacks != null && !dataCallbacks.isEmpty()) {
+            for (Function<BaseCmdWrap, Object> dataCallback : dataCallbacks) {
+                dataCallback.apply(cmd);
+            }
         }
     }
 }

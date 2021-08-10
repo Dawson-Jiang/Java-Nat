@@ -13,7 +13,7 @@ public class TerminalCore {
         GLog.println("start...");
         ControlCore controlCore = new ControlCore();
         TerminalAndClientInfo clientInfo = new TerminalAndClientInfo();
-        clientInfo.setId("3rfwefwe");
+        clientInfo.setId("3rfwefwefkkgjgfiejciufi");
         clientInfo.setName("v001");
         controlCore.setClientInfo(clientInfo);
         controlCore.start();

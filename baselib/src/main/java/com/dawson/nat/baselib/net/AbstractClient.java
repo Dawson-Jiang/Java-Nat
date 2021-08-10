@@ -91,6 +91,13 @@ public abstract class AbstractClient {
         connectCallback = callback;
     }
 
+
+    public void bindSocket(SocketChannel socket) {
+        this.socket = socket;
+        isWork = true;
+        startReceiveData();
+    }
+
     private static final short buffer_size = 4096;
     protected ByteBuffer buffer = ByteBuffer.allocate(buffer_size);
 
