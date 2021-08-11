@@ -66,8 +66,8 @@ public class BaseCmdWrap {
         length = BASIC_LEN;
         length = (short) (value == null ? length : length + value.length);
         ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-        byteBuffer.putInt(type);
-        byteBuffer.putInt(length);
+        byteBuffer.put(type);
+        byteBuffer.putShort(length);
         if (value != null) {
             byteBuffer.put(value);
         }
@@ -79,7 +79,7 @@ public class BaseCmdWrap {
         return decode(byteBuffer);
     }
 
-    private static final int BASIC_LEN = 8;
+    private static final int BASIC_LEN = 3;
 
     public BaseCmdWrap decode(ByteBuffer byteBuffer) {
         if (byteBuffer.remaining() < BASIC_LEN) {

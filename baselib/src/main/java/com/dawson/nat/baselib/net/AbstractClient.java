@@ -76,6 +76,9 @@ public abstract class AbstractClient {
             } while (isWork && isAutoReconnect);
             if (isWork) {
                 //连接成功
+                if (connectCallback != null) {
+                    connectCallback.apply(true);
+                }
                 startReceiveData();
             }
             isDoingConn = false;
@@ -105,7 +108,6 @@ public abstract class AbstractClient {
         executor.execute(() -> {
             try {
                 do {
-                    socket.close();
                     long len = socket.read(buffer);
                     System.out.println("client read len:" + len);
                     if (len > 0) {
@@ -120,8 +122,7 @@ public abstract class AbstractClient {
                 } while (isWork);
             } catch (Exception e) {
                 e.printStackTrace();
-                //断开连接
-
+                //重新连接
                 if (isAutoReconnect && isWork) {
                     if (connectCallback != null) {
                         connectCallback.apply(false);

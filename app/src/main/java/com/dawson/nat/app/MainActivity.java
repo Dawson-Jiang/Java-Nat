@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         clientInfo.setId("3rfwefwefkkgjgfiejciufi");
         clientInfo.setName("v001");
         controlCore.setClientInfo(clientInfo);
+        controlCore.init("192.168.0.3", (short) 5025);
         controlCore.start();
     }
 }

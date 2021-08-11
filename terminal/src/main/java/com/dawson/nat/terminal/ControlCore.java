@@ -1,5 +1,6 @@
 package com.dawson.nat.terminal;
 
+import com.dawson.nat.baselib.GLog;
 import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
@@ -22,31 +23,33 @@ public class ControlCore {
     private ControlClient controlClient = new ControlClient();
     private boolean isConnect;
     private TerminalAndClientInfo clientInfo;
-    public static final String SERVER_IP = "192.168.0.3";
-    public static final short SERVER_PORT = 5025;
+    public static String SERVER_IP = "";
+    public static short SERVER_PORT;
     private List<CmdConfig> configs;
     private Gson gson = new Gson();
 
-    public void start() {
+    public void init(Object... params) {
+        if (params != null && params.length > 1) {
+            SERVER_IP = (String) params[0];
+            SERVER_PORT = (short) params[1];
+        }
         controlClient.init(SERVER_IP, SERVER_PORT);
-        controlClient.addOnDataReceived(new Function<BaseCmdWrap, Object>() {
-            @Override
-            public Object apply(BaseCmdWrap baseCmdWrap) {
-                handleData(baseCmdWrap);
-                return true;
-            }
+    }
+
+    public void start() {
+        controlClient.addOnDataReceived(baseCmdWrap -> {
+            handleData(baseCmdWrap);
+            return true;
         });
-        controlClient.registerConnect(new Function<Boolean, Object>() {
-            @Override
-            public Object apply(Boolean aBoolean) {
-                //disconnect->connect
-                if (!isConnect && aBoolean) {
-                    //注册信息
-                    rgInfo();
-                }
-                isConnect = aBoolean;
-                return true;
+        controlClient.registerConnect(aBoolean -> {
+            //disconnect->connect
+            if (!isConnect && aBoolean) {
+                //注册信息
+                GLog.println("terminal controlClient connect success");
+                rgInfo();
             }
+            isConnect = aBoolean;
+            return true;
         });
         controlClient.start();
     }
@@ -62,6 +65,7 @@ public class ControlCore {
     private void handleData(BaseCmdWrap baseCmdWrap) {
         if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_REG_INFO) {
             //回复的配置信息
+            GLog.println("reg info success");
             configs = gson.fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<CmdConfig>>() {
             }.getType());
         } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CONN) {
@@ -69,7 +73,7 @@ public class ControlCore {
                     = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
             String sessionId = jsonObject.getAsJsonObject("sessionId").getAsString();
             String cmd = jsonObject.getAsJsonObject("cmd").getAsString();
-
+            GLog.println("new conn session:" + sessionId + " cmd:" + cmd);
             sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
         }
     }
