@@ -2,14 +2,14 @@ apply plugin: 'java-library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':baselib')
+    implementation project(':baselib')
 }
 
 
 jar {
     from {
         //添加依懒到打包文件
-        configurations.runtime.collect{zipTree(it)}
+        configurations.runtime.collect { zipTree(it) }
     }
     manifest {
         attributes 'Main-Class': 'com.dawson.nat.user.UserCore'

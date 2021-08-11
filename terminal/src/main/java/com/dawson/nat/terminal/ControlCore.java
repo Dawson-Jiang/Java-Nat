@@ -22,7 +22,7 @@ public class ControlCore {
     private ControlClient controlClient = new ControlClient();
     private boolean isConnect;
     private TerminalAndClientInfo clientInfo;
-    public static final String SERVER_IP = "192.168.3.4";
+    public static final String SERVER_IP = "192.168.0.3";
     public static final short SERVER_PORT = 5025;
     private List<CmdConfig> configs;
     private Gson gson = new Gson();

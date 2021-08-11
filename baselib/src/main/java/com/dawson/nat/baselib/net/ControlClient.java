@@ -1,5 +1,6 @@
 package com.dawson.nat.baselib.net;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -13,7 +14,7 @@ public class ControlClient extends AbstractClient {
         setAutoReconnect(true);
     }
 
-    private List<Function<BaseCmdWrap, Object>> dataCallbacks;
+    private List<Function<BaseCmdWrap, Object>> dataCallbacks = new ArrayList<>();
 
     /**
      * 客户端收到数据回调

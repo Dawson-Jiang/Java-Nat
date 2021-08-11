@@ -1,1 +1,2 @@
 include ':terminal',  ':baselib',"server","user"
+include ':app'

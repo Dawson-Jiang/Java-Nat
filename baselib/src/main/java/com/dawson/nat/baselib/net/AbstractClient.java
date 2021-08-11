@@ -36,7 +36,7 @@ public abstract class AbstractClient {
     public void init(Object... params) {
         if (params != null && params.length > 1) {
             this.ip = (String) params[0];
-            this.port = (int) params[1];
+            this.port = (short) params[1];
         }
     }
 

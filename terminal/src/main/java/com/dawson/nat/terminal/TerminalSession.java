@@ -17,10 +17,10 @@ public class TerminalSession extends NatSession {
     @Override
     public void start() {
         client2 = new TransportClient();
-        client2.init(getClient1Info().getIp(), getClient1Info().getPort());
+        client2.init(getClientWrap2().getInfo().getIp(), getClientWrap2().getInfo().getPort());
 
         client1 = new TransportClient();
-        client1.init(getClient1Info().getIp(), getClient1Info().getPort());
+        client1.init(getClientWrap1().getInfo().getIp(), getClientWrap1().getInfo().getPort());
         client1.registerConnect(new Function<Boolean, Object>() {
             @Override
             public Object apply(Boolean aBoolean) {
