@@ -23,24 +23,25 @@ public class SocketServer {
 
     private ServerSocketChannel server;
 
-
     public void init(Object... params) {
         if (params != null && params.length > 0) {
             this.port = (int) params[0];
         }
     }
 
-    public void start() {
-        if (isWork) {
+    public synchronized void start() {
+        isWork = true;
+        if (isStart) {
             return;
         }
+
         executor.execute(() -> {
             try {
+                isStart = true;
                 if (server == null) {
                     server = ServerSocketChannel.open();
                 }
                 server.bind(new InetSocketAddress(port));
-                isStart = true;
                 do {
                     GLog.println("start socket server begin accept client");
                     SocketChannel socket = server.accept();
@@ -93,5 +94,6 @@ public class SocketServer {
             }
         }
         isStart = false;
+        isWork = false;
     }
 }
