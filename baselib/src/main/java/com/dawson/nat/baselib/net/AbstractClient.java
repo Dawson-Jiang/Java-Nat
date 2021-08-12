@@ -76,10 +76,10 @@ public abstract class AbstractClient {
             } while (isWork && isAutoReconnect);
             if (isWork) {
                 //连接成功
+                startReceiveData();
                 if (connectCallback != null) {
                     connectCallback.apply(true);
                 }
-                startReceiveData();
             }
             isDoingConn = false;
         });

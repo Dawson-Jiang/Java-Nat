@@ -29,49 +29,41 @@ public class ControlCore {
     private TerminalAndClientInfo clientInfo;
     private Gson gson = new Gson();
     private SessionManager sessionManager = new SessionManager();
-    public static final String SERVER_IP = "192.168.3.4";
+    public static final String SERVER_IP = "192.168.0.3";
     public static final short SERVER_PORT = 5025;
 
     /**
-     * 监听服务
+     * 监听第三方真实的客户端连接
      */
-    private SocketServer controlServer;
+    private SocketServer thirdClientServer;
 
     /**
      * 启动客户端 连接控制服务
      */
     public void start() {
         controlClient.init(SERVER_IP, SERVER_PORT);
-        controlClient.addOnDataReceived(new Function<BaseCmdWrap, Object>() {
-            @Override
-            public Object apply(BaseCmdWrap baseCmdWrap) {
-                handleData(baseCmdWrap);
-                return true;
-            }
+        controlClient.addOnDataReceived(baseCmdWrap -> {
+            handleData(baseCmdWrap);
+            return true;
         });
-        controlClient.registerConnect(new Function<Boolean, Object>() {
-            @Override
-            public Object apply(Boolean aBoolean) {
-                //disconnect->connect
-                if (!isConnect && aBoolean) {
-                    //注册信息
-                    rgInfo();
-                }
-                isConnect = aBoolean;
-                return true;
+        controlClient.registerConnect(aBoolean -> {
+            //disconnect->connect
+            if (!isConnect && aBoolean) {
+                //注册信息
+                rgInfo();
             }
+            isConnect = aBoolean;
+            return true;
         });
         controlClient.start();
 
-        controlServer = new SocketServer();
-        controlServer.init(5025);
-        controlServer.registerOnClientConnect(new Function<SocketChannel, Boolean>() {
-            @Override
-            public Boolean apply(SocketChannel socketChannel) {
-                sessionManager.newCmdConn(socketChannel);
-                return true;
-            }
+        thirdClientServer = new SocketServer();
+        thirdClientServer.init(5026);
+        thirdClientServer.registerOnClientConnect(socketChannel -> {
+            sessionManager.newCmdConn(socketChannel);
+            return true;
         });
+        thirdClientServer.start();
     }
 
     /**

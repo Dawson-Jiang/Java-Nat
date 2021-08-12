@@ -15,21 +15,19 @@ import java.util.function.Function;
  */
 public class UserSession extends NatSession {
     @Override
-    public void start() {
+    public synchronized void start() {
         client2 = new TransportClient();
         client2.init(getClientWrap2().getInfo().getIp(), getClientWrap2().getInfo().getPort());
-        client2.registerConnect(new Function<Boolean, Object>() {
-            @Override
-            public Object apply(Boolean aBoolean) {
+        client2.registerConnect(aBoolean -> {
 //发送连接信息
-                JsonObject res = new JsonObject();
-                res.addProperty("sessionId", getId());
+            JsonObject res = new JsonObject();
+            res.addProperty("sessionId", getId());
 
-                BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN, res);
-                client2.sendData(baseCmdWrap);
-                return true;
-            }
+            BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN, res);
+            client2.sendData(baseCmdWrap);
+            return true;
         });
+        client2.start();
         super.start();
     }
 

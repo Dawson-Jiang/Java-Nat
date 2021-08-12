@@ -17,14 +17,14 @@ public class ControlClient extends AbstractClient {
     private List<Function<BaseCmdWrap, Object>> dataCallbacks = new ArrayList<>();
 
     /**
-     * 客户端收到数据回调
+     * 注册客户端收到数据回调
      */
     public void addOnDataReceived(Function<BaseCmdWrap, Object> callback) {
         this.dataCallbacks.add(callback);
     }
 
     /**
-     * 客户端收到数据回调
+     * 取消数据回调
      */
     public void removeOnDataReceived(Function<BaseCmdWrap, Object> callback) {
         this.dataCallbacks.remove(callback);

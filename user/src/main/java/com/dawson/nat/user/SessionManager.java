@@ -21,6 +21,13 @@ import java.util.function.Function;
 public class SessionManager {
     List<UserSession> sessions = new ArrayList<>();
 
+    /**
+     * 创建会话
+     *
+     * @param client
+     * @param sid
+     * @param config
+     */
     public void createSession(ControlClient client, String sid, CmdConfig config) {
         UserSession session = new UserSession();
         session.setId(sid);
@@ -28,7 +35,7 @@ public class SessionManager {
         TerminalAndClientInfo clientInfo = new TerminalAndClientInfo();
         clientInfo.setIp(ControlCore.SERVER_IP);
         clientInfo.setPort(ControlCore.SERVER_PORT);
-        ClientWrap wrap=new ClientWrap();
+        ClientWrap wrap = new ClientWrap();
         wrap.setClient(client);
         wrap.setInfo(clientInfo);
         session.setClientWrap2(wrap);
@@ -44,10 +51,15 @@ public class SessionManager {
         session.start();
     }
 
-    public void newCmdConn(SocketChannel socketChannel){
+    /**
+     * 真实的第三方客户端连接
+     *
+     * @param socketChannel
+     */
+    public void newCmdConn(SocketChannel socketChannel) {
         for (UserSession session : sessions) {
-            if(session.getState().equals(CommonBean.SessionStateConst.STATE_READY)){
-                TransportClient transportClient=new TransportClient();
+            if (session.getState().equals(CommonBean.SessionStateConst.STATE_READY)) {
+                TransportClient transportClient = new TransportClient();
                 transportClient.bindSocket(socketChannel);
                 session.bindClient1(transportClient);
                 break;

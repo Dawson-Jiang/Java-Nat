@@ -7,6 +7,9 @@ import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.util.UUID;
 
 /**
  * tx2模拟服务
@@ -19,18 +22,23 @@ public class UserCore {
     public static void main(String[] args) {
         GLog.println("start...");
         TerminalAndClientInfo clientInfo = new TerminalAndClientInfo();
-        clientInfo.setId("hgff5443");
-        clientInfo.setName("u001");
+        clientInfo.setId(UUID.randomUUID().toString());
+        clientInfo.setName("U001");
         controlCore.setClientInfo(clientInfo);
         controlCore.start();
-        GLog.println("start success");
-        GLog.println("input cmd to do sth.");
+        GLog.println("please input cmd...");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             try {
                 String cmd = br.readLine();
                 if (cmd != null) {
                     handleCmd(cmd.split(" "));
+                }else{
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
