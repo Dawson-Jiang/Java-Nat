@@ -6,6 +6,8 @@ import android.os.Bundle;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
 import com.dawson.nat.terminal.ControlCore;
 
+import java.util.UUID;
+
 /**
  * 测试终端
  *
@@ -25,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
     TerminalAndClientInfo clientInfo = new TerminalAndClientInfo();
 
     private void startNat() {
-        clientInfo.setId("3rfwefwefkkgjgfiejciufi");
-        clientInfo.setName("v001");
+        clientInfo.setId(UUID.randomUUID().toString());
+        clientInfo.setName("T001");
         controlCore.setClientInfo(clientInfo);
         controlCore.init("192.168.0.3", (short) 5025);
         controlCore.start();
