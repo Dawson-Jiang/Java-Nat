@@ -89,5 +89,6 @@ public class ControlCore {
 
     public void setClientInfo(TerminalAndClientInfo clientInfo) {
         this.clientInfo = clientInfo;
+        this.clientInfo.setType(CommonBean.ClientType.CLIENT_TERMINAL);
     }
 }

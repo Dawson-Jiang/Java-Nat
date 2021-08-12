@@ -1,5 +1,6 @@
 package com.dawson.nat.user;
 
+import com.dawson.nat.baselib.Common;
 import com.dawson.nat.baselib.GLog;
 import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.CommonBean;
@@ -139,7 +140,7 @@ public class ControlCore {
             String sessionId = jsonObject.getAsJsonObject("sessionId").getAsString();
             String cmd = jsonObject.getAsJsonObject("cmd").getAsString();
 
-            sessionManager.createSession(controlClient,sessionId, findConfig(cmd));
+            sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
         }
     }
 
@@ -154,6 +155,7 @@ public class ControlCore {
 
     public void setClientInfo(TerminalAndClientInfo clientInfo) {
         this.clientInfo = clientInfo;
+        this.clientInfo.setType(CommonBean.ClientType.CLIENT_USER);
     }
 
     private void printInfos() {

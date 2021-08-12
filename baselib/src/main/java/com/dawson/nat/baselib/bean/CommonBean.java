@@ -140,25 +140,17 @@ public class CommonBean {
     }
 
     /**
-     * 主动安全 避障
+     * 终端类型
      */
-    public static class ObstacleConst {
+    public static class ClientType {
         /**
-         * 障碍物方位 前方
+         * 用户端
          */
-        public static final String OBSTACLE_FORWARD = "OBSTACLE_FORWARD";
+        public static final String CLIENT_USER = "user";
         /**
-         * 障碍物方位 右方
+         * 终端
          */
-        public static final String OBSTACLE_RIGHT = "OBSTACLE_RIGHT";
-        /**
-         * 障碍物方位 后方
-         */
-        public static final String OBSTACLE_BACK = "OBSTACLE_BACK";
-        /**
-         * 障碍物方位 左方
-         */
-        public static final String OBSTACLE_LEFT = "OBSTACLE_LEFT";
+        public static final String CLIENT_TERMINAL = "terminal";
     }
 
     /**
