@@ -29,11 +29,12 @@ public class SessionManager {
         wrap.setInfo(clientInfo);
         wrap.setClient(client);
         session.setClientWrap1(wrap);
+
         clientInfo = new TerminalAndClientInfo();
         clientInfo.setIp("localhost");
         clientInfo.setPort(config.getPort());
         wrap=new ClientWrap();
-        wrap.setClient(client);
+        wrap.setInfo(clientInfo);
         session.setClientWrap2(wrap);
         session.start();
 

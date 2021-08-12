@@ -1,5 +1,6 @@
 package com.dawson.nat.user;
 
+import com.dawson.nat.baselib.Common;
 import com.dawson.nat.baselib.GLog;
 import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
@@ -22,7 +23,11 @@ public class UserCore {
     public static void main(String[] args) {
         GLog.println("start...");
         TerminalAndClientInfo clientInfo = new TerminalAndClientInfo();
-        clientInfo.setId(UUID.randomUUID().toString());
+        String[] im = Common.getIPAndMac();
+        if (im != null) {
+            clientInfo.setIp(im[0]);
+            clientInfo.setId(im[1]);
+        }
         clientInfo.setName("U001");
         controlCore.setClientInfo(clientInfo);
         controlCore.start();
@@ -53,8 +58,6 @@ public class UserCore {
             controlCore.getTerminals();
         } else if (cmd[0].equals("cs")) {
             controlCore.printConfigs();
-        } else if (cmd[0].equals("h") || cmd[0].equals("help")) {
-            printHelp();
         } else {
             for (CmdConfig config : controlCore.configs) {
                 if (cmd[0].equals(config.getCmd())) {
@@ -63,7 +66,7 @@ public class UserCore {
                     return;
                 }
             }
-            GLog.println("unknown cmd");
+            printHelp();
         }
     }
 

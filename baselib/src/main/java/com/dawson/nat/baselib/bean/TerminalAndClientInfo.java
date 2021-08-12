@@ -70,7 +70,7 @@ public class TerminalAndClientInfo implements Serializable, Comparable<TerminalA
 
     @Override
     public String toString() {
-        return id + "," + name + "," + ip;
+        return id + "  " + name  + "  " + ip;
     }
 
     public String getType() {
