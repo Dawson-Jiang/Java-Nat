@@ -63,14 +63,11 @@ public class NatSession {
                 getState().equals(CommonBean.SessionStateConst.STATE_CLOSE)) {
             return;
         }
-        client2.registerConnect(new Function<Boolean, Object>() {
-            @Override
-            public Object apply(Boolean aBoolean) {
-                if (!aBoolean) {
-                    closeSession();
-                }
-                return true;
+        client2.registerConnect(aBoolean -> {
+            if (!aBoolean) {
+                closeSession();
             }
+            return true;
         });
         client2.registerOnDataReceived(new Function<byte[], Object>() {
             @Override
@@ -79,14 +76,11 @@ public class NatSession {
             }
         });
 
-        client1.registerConnect(new Function<Boolean, Object>() {
-            @Override
-            public Object apply(Boolean aBoolean) {
-                if (aBoolean) {
-                    closeSession();
-                }
-                return true;
+        client1.registerConnect(aBoolean -> {
+            if (aBoolean) {
+                closeSession();
             }
+            return true;
         });
         client1.registerOnDataReceived(new Function<byte[], Object>() {
             @Override

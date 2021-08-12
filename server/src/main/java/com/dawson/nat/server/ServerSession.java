@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 public class ServerSession extends NatSession {
 
     @Override
-    public void start() {
+    public synchronized void start() {
         JsonObject req = new JsonObject();
         req.addProperty("sessionId", getId());
         req.addProperty("cmd", getConfig().getCmd());

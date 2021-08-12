@@ -4,6 +4,7 @@ import com.dawson.nat.baselib.ExecutorUtil;
 import com.dawson.nat.baselib.GLog;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -53,6 +54,9 @@ public class SocketServer {
                 } while (isWork);
             } catch (Exception ex) {
                 ex.printStackTrace();
+                if (ex instanceof BindException) {
+                    return;
+                }
                 //重启服务
                 isStart = false;
                 start();
