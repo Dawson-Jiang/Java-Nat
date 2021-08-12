@@ -83,7 +83,7 @@ public class ControlCore {
      * 发起新连接
      */
     public void newClient(int num, String cmd) {
-        TerminalAndClientInfo clientInfo = infos.get(num);
+        TerminalAndClientInfo clientInfo = infos.get(num - 1);
 
         JsonObject req = new JsonObject();
         req.addProperty("terminalId", clientInfo.getId());
@@ -151,9 +151,9 @@ public class ControlCore {
     }
 
     private void printInfos() {
-        GLog.println("number   id    name   mac    ip");
+        GLog.println("number      id            name   ip");
         for (int i = 0; i < infos.size(); i++) {
-            GLog.println(i + " " + infos.get(i));
+            GLog.println(" " + (i + 1) + "     " + infos.get(i));
         }
     }
 
