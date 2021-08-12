@@ -71,8 +71,8 @@ public class ControlCore {
         } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CONN) {
             JsonObject jsonObject
                     = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
-            String sessionId = jsonObject.getAsJsonObject("sessionId").getAsString();
-            String cmd = jsonObject.getAsJsonObject("cmd").getAsString();
+            String sessionId = jsonObject.get("sessionId").getAsString();
+            String cmd = jsonObject.get("cmd").getAsString();
             GLog.println("new conn session:" + sessionId + " cmd:" + cmd);
             sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
         }
