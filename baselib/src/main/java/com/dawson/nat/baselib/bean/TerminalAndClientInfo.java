@@ -2,6 +2,7 @@ package com.dawson.nat.baselib.bean;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 终端或客户端信息
@@ -69,7 +70,7 @@ public class TerminalAndClientInfo implements Serializable, Comparable<TerminalA
 
     @Override
     public String toString() {
-        return id + "," + name  + "," + ip;
+        return id + "," + name + "," + ip;
     }
 
     public String getType() {
@@ -78,5 +79,22 @@ public class TerminalAndClientInfo implements Serializable, Comparable<TerminalA
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TerminalAndClientInfo that = (TerminalAndClientInfo) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

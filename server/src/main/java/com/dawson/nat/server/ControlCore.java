@@ -27,6 +27,10 @@ public class ControlCore {
         final ClientWrap clientWrap = new ClientWrap();
         clientWrap.setClient(client);
         clientWrap.setInfo(info);
+        if (clients.contains(clientWrap)) {
+            client.close();
+            return;
+        }
         //回复配置信息
         BaseCmdWrap res = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_REG_INFO, configs);
         clientWrap.getClient().sendData(res);
@@ -37,22 +41,21 @@ public class ControlCore {
                 return null;
             }
         });
+        client.registerConnect(aBoolean -> {
+            if (!aBoolean) {
+                clients.remove(clientWrap);
+            }
+            return true;
+        });
         clients.add(clientWrap);
     }
 
     private void handleCmd(ClientWrap clientWrap, BaseCmdWrap baseCmdWrap) {
         if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_GET_TERMINALS) {
-            List<TerminalAndClientInfo> infos = clients.stream().filter(new Predicate<ClientWrap>() {
-                @Override
-                public boolean test(ClientWrap cw) {
-                    return cw.getInfo() != null && cw.getInfo().getType().equals("terminal");
-                }
-            }).map(new Function<ClientWrap, TerminalAndClientInfo>() {
-                @Override
-                public TerminalAndClientInfo apply(ClientWrap cw) {
-                    return cw.getInfo();
-                }
-            }).collect(Collectors.toList());
+            List<TerminalAndClientInfo> infos = clients.stream().filter(cw -> cw.getInfo() != null
+                    && cw.getInfo().getType().equals(CommonBean.ClientType.CLIENT_TERMINAL))
+                    .map(cw -> cw.getInfo())
+                    .collect(Collectors.toList());
             BaseCmdWrap res = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_GET_TERMINALS, infos);
             clientWrap.getClient().sendData(res);
         } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CONN) {

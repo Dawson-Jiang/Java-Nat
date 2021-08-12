@@ -69,6 +69,7 @@ public class ServerCore {
         }
         if (cmd.getType() == CommonBean.ControlTypeConst.TYPE_REG_INFO) {
             final ControlClient controlClient = new ControlClient();
+            controlClient.setAutoReconnect(false);
             controlClient.bindSocket(socketChannel);
             TerminalAndClientInfo info = new Gson().fromJson(cmd.getStringValue(), TerminalAndClientInfo.class);
             GLog.println("reg new client id:" + info.getId() + " name:" + info.getName() + " type:" + info.getType());
