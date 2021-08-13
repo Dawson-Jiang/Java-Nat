@@ -2,6 +2,7 @@ package com.dawson.nat.server;
 
 import com.dawson.nat.baselib.ClientWrap;
 import com.dawson.nat.baselib.NatSession;
+import com.dawson.nat.baselib.NatSessionManage;
 import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
@@ -21,7 +22,7 @@ import java.util.function.Function;
 /**
  * @author dawson
  */
-public class SessionManager {
+public class SessionManager extends NatSessionManage {
     private SessionManager() {
     }
 
@@ -34,15 +35,12 @@ public class SessionManager {
         return instance;
     }
 
-    private List<ServerSession> sessions = new ArrayList<>();
-
     public synchronized void createSession(ClientWrap c1, ClientWrap c2, final CmdConfig config) {
         ServerSession session = new ServerSession();
         session.setId(UUID.randomUUID().toString());
         session.setClientWrap1(c1);
         session.setClientWrap2(c2);
         session.setConfig(config);
-        sessions.add(session);
         session.registerOnClosed(new Function<NatSession, Object>() {
             @Override
             public Object apply(NatSession s) {
@@ -51,17 +49,20 @@ public class SessionManager {
             }
         });
         session.start();
+        cleanSession();
+        sessions.add(session);
+
     }
 
     public void newClient(SocketChannel socketChannel, String sid, String type) {
-        for (ServerSession session : sessions) {
+        for (NatSession session : sessions) {
             if (session.getId().equals(sid)) {
                 TransportClient client = new TransportClient();
                 client.bindSocket(socketChannel);
-                if (type.equals("user")) {
-                    session.bindClient1(client);
+                if (type.equals(CommonBean.ClientType.CLIENT_USER)) {
+                    ((ServerSession) session).bindClient1(client);
                 } else {
-                    session.bindClient2(client);
+                    ((ServerSession) session).bindClient2(client);
                 }
                 break;
             }

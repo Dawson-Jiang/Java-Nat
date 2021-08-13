@@ -22,9 +22,9 @@ public class CommonBean {
          */
         public static final byte TYPE_REG_INFO = 1;
         /**
-         * 客户端请求新连接
+         * 客户端请求新会话
          */
-        public static final byte TYPE_NEW_CONN = 2;
+        public static final byte TYPE_NEW_SESSION = 2;
         /**
          * 获取注册的终端
          */

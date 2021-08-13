@@ -2,6 +2,7 @@ package com.dawson.nat.server;
 
 import com.dawson.nat.baselib.ClientWrap;
 import com.dawson.nat.baselib.DataUtil;
+import com.dawson.nat.baselib.GLog;
 import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
@@ -58,12 +59,13 @@ public class ControlCore {
                     .collect(Collectors.toList());
             BaseCmdWrap res = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_GET_TERMINALS, infos);
             clientWrap.getClient().sendData(res);
-        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CONN) {
+        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
             JsonObject param = new Gson().fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
             String tid = param.get("terminalId").getAsString();
             ClientWrap t = findClient(tid);
             String cmd = param.get("cmd").getAsString();
             CmdConfig config = findConfig(cmd);
+            GLog.println("new session tid:" + tid + " cmd " + cmd);
             SessionManager.getInstance().createSession(clientWrap, t, config);
         }
     }

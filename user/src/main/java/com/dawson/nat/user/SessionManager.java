@@ -2,6 +2,7 @@ package com.dawson.nat.user;
 
 import com.dawson.nat.baselib.ClientWrap;
 import com.dawson.nat.baselib.NatSession;
+import com.dawson.nat.baselib.NatSessionManage;
 import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
@@ -18,8 +19,7 @@ import java.util.function.Function;
  *
  * @author dawson
  */
-public class SessionManager {
-    List<UserSession> sessions = new ArrayList<>();
+public class SessionManager extends NatSessionManage {
 
     /**
      * 创建会话
@@ -47,8 +47,10 @@ public class SessionManager {
                 return true;
             }
         });
-        sessions.add(session);
         session.start();
+        cleanSession();
+        sessions.add(session);
+
     }
 
     /**
@@ -57,11 +59,11 @@ public class SessionManager {
      * @param socketChannel
      */
     public void newCmdConn(SocketChannel socketChannel) {
-        for (UserSession session : sessions) {
+        for (NatSession session : sessions) {
             if (session.getState().equals(CommonBean.SessionStateConst.STATE_READY)) {
                 TransportClient transportClient = new TransportClient();
                 transportClient.bindSocket(socketChannel);
-                session.bindClient1(transportClient);
+                ((UserSession) session).bindClient1(transportClient);
                 break;
             }
         }

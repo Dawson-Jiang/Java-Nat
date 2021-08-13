@@ -49,6 +49,7 @@ public class ControlCore {
         controlClient.registerConnect(aBoolean -> {
             //disconnect->connect
             if (!isConnect && aBoolean) {
+                GLog.println("user controlClient connect success");
                 //注册信息
                 rgInfo();
             }
@@ -88,29 +89,8 @@ public class ControlCore {
         JsonObject req = new JsonObject();
         req.addProperty("terminalId", clientInfo.getId());
         req.addProperty("cmd", cmd);
-        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CONN, req);
+        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, req);
         controlClient.sendData(baseCmdWrap);
-
-        //带参数启动客户端
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        CmdConfig config = null;
-        for (CmdConfig c : configs) {
-            if (c.getCmd().equals(cmd)) {
-                config = c;
-                break;
-            }
-        }
-        //带参数启动客户端
-        try {
-            Runtime.getRuntime().exec("C:/Windows/System32/cmd.exe /c " + config.getClientParam());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     List<TerminalAndClientInfo> infos;
@@ -126,12 +106,14 @@ public class ControlCore {
             //回复配置信息
             configs = gson.fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<CmdConfig>>() {
             }.getType());
-        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CONN) {
+            //打印信息
+            printConfigs();
+        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
             JsonObject jsonObject
                     = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
-            String sessionId = jsonObject.getAsJsonObject("sessionId").getAsString();
-            String cmd = jsonObject.getAsJsonObject("cmd").getAsString();
-
+            String sessionId = jsonObject.get("sessionId").getAsString();
+            String cmd = jsonObject.get("cmd").getAsString();
+            GLog.println("new session id:" + sessionId + " cmd:" + cmd);
             sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
         }
     }

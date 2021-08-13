@@ -18,7 +18,7 @@ public class ServerSession extends NatSession {
         JsonObject req = new JsonObject();
         req.addProperty("sessionId", getId());
         req.addProperty("cmd", getConfig().getCmd());
-        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CONN, req);
+        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, req);
         //给终端发送新连接的命令
         getClientWrap2().getClient().sendData(baseCmdWrap);
     }
@@ -33,7 +33,7 @@ public class ServerSession extends NatSession {
         JsonObject req = new JsonObject();
         req.addProperty("sessionId", getId());
         req.addProperty("cmd", getConfig().getCmd());
-        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CONN, req);
+        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, req);
         //给客户端发送新连接的命令
         getClientWrap1().getClient().sendData(baseCmdWrap);
     }

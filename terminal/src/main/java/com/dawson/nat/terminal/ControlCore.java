@@ -68,12 +68,12 @@ public class ControlCore {
             GLog.println("reg info success");
             configs = gson.fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<CmdConfig>>() {
             }.getType());
-        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CONN) {
+        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
             JsonObject jsonObject
                     = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
             String sessionId = jsonObject.get("sessionId").getAsString();
             String cmd = jsonObject.get("cmd").getAsString();
-            GLog.println("new conn session:" + sessionId + " cmd:" + cmd);
+            GLog.println("new session id:" + sessionId + " cmd:" + cmd);
             sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
         }
     }

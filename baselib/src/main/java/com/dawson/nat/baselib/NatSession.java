@@ -59,6 +59,7 @@ public class NatSession {
         if (client2 == null || client1 == null) {
             return;
         }
+        state = CommonBean.SessionStateConst.STATE_RUNNING;
         if (getState().equals(CommonBean.SessionStateConst.STATE_RUNNING) ||
                 getState().equals(CommonBean.SessionStateConst.STATE_CLOSE)) {
             return;
@@ -77,7 +78,7 @@ public class NatSession {
         });
 
         client1.registerConnect(aBoolean -> {
-            if (aBoolean) {
+            if (!aBoolean) {
                 closeSession();
             }
             return true;
@@ -88,7 +89,6 @@ public class NatSession {
                 return client2.sendData(bytes);
             }
         });
-        state = CommonBean.SessionStateConst.STATE_RUNNING;
     }
 
     protected Function<NatSession, Object> closeCallback;
