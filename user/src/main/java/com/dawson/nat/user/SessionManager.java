@@ -10,6 +10,7 @@ import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
 import com.dawson.nat.baselib.net.ControlClient;
 import com.dawson.nat.baselib.net.TransportClient;
 
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,11 @@ public class SessionManager extends NatSessionManage {
                 ((UserSession) session).bindClient1(transportClient);
                 return;
             }
+        }
+        try {
+            socketChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         GLog.println("new thirdClient conn but no wait session");
     }

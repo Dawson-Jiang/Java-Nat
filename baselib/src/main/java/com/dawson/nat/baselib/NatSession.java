@@ -105,6 +105,9 @@ public class NatSession {
     }
 
     protected void closeSession() {
+        if (state.equals(CommonBean.SessionStateConst.STATE_CLOSE)) {
+            return;//防止循环close
+        }
         setState(CommonBean.SessionStateConst.STATE_CLOSE);
         client1.close();
         client2.close();
