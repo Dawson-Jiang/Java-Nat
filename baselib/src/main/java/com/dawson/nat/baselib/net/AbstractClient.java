@@ -104,7 +104,7 @@ public abstract class AbstractClient {
     private static final short buffer_size = 4096;
     protected ByteBuffer buffer = ByteBuffer.allocate(buffer_size);
 
-    private void startReceiveData() {
+    public void startReceiveData() {
         executor.execute(() -> {
             try {
                 do {
