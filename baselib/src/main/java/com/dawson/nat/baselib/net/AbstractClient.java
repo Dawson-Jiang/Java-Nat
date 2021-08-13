@@ -105,6 +105,10 @@ public abstract class AbstractClient {
     protected ByteBuffer buffer = ByteBuffer.allocate(buffer_size);
 
     public void startReceiveData() {
+        startReceiveDataMethod();
+    }
+
+    public void startReceiveDataMethod() {
         executor.execute(() -> {
             try {
                 do {
@@ -122,7 +126,7 @@ public abstract class AbstractClient {
                 } while (isWork);
             } catch (Exception e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 //重新连接
                 if (isAutoReconnect && isWork) {
                     if (connectCallback != null) {

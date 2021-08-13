@@ -59,25 +59,11 @@ public class NatSession {
         if (client2 == null || client1 == null) {
             return;
         }
-        state = CommonBean.SessionStateConst.STATE_RUNNING;
         if (getState().equals(CommonBean.SessionStateConst.STATE_RUNNING) ||
                 getState().equals(CommonBean.SessionStateConst.STATE_CLOSE)) {
             return;
         }
-        client2.registerConnect(aBoolean -> {
-            if (!aBoolean) {
-                closeSession();
-            }
-            return true;
-        });
-        client2.registerOnDataReceived(new Function<byte[], Object>() {
-            @Override
-            public Object apply(byte[] bytes) {
-                GLog.println("receive client2 cmd data:" + bytes.length);
-                return client1.sendData(bytes);
-            }
-        });
-
+        state = CommonBean.SessionStateConst.STATE_RUNNING;
         client1.registerConnect(aBoolean -> {
             if (!aBoolean) {
                 closeSession();
@@ -91,6 +77,22 @@ public class NatSession {
                 return client2.sendData(bytes);
             }
         });
+        client1.startReceiveDataMethod();
+
+        client2.registerConnect(aBoolean -> {
+            if (!aBoolean) {
+                closeSession();
+            }
+            return true;
+        });
+        client2.registerOnDataReceived(new Function<byte[], Object>() {
+            @Override
+            public Object apply(byte[] bytes) {
+                GLog.println("receive client2 cmd data:" + bytes.length);
+                return client1.sendData(bytes);
+            }
+        });
+        client2.startReceiveDataMethod();
     }
 
     protected Function<NatSession, Object> closeCallback;
