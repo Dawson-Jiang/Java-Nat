@@ -1,5 +1,6 @@
 package com.dawson.nat.terminal;
 
+import com.dawson.nat.baselib.GLog;
 import com.dawson.nat.baselib.NatSession;
 import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.net.BaseCmdWrap;
@@ -16,23 +17,41 @@ import java.util.function.Function;
 public class TerminalSession extends NatSession {
     @Override
     public void start() {
-        client2 = new TransportClient();
-        client2.init(getClientWrap2().getInfo().getIp(), getClientWrap2().getInfo().getPort());
-
-        client1 = new TransportClient();
-        client1.init(getClientWrap1().getInfo().getIp(), getClientWrap1().getInfo().getPort());
-        client1.registerConnect(new Function<Boolean, Object>() {
+        final TransportClient c2 = new TransportClient();
+        c2.init(getClientWrap2().getInfo().getIp(), getClientWrap2().getInfo().getPort());
+        c2.registerConnect(new Function<Boolean, Object>() {
             @Override
             public Object apply(Boolean aBoolean) {
-//发送连接信息
-                JsonObject res = new JsonObject();
-                res.addProperty("sessionId", getId());
-
-                BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN, res);
-                client1.sendData(baseCmdWrap);
+                if (aBoolean) {
+                    GLog.println("term. session client2 conn");
+                    client2 = c2;
+                    TerminalSession.super.start();
+                }
                 return true;
             }
         });
-        super.start();
+        c2.start();
+
+        TransportClient c1 = new TransportClient();
+        c1.init(getClientWrap1().getInfo().getIp(), getClientWrap1().getInfo().getPort());
+        c1.registerConnect(new Function<Boolean, Object>() {
+            @Override
+            public Object apply(Boolean aBoolean) {
+                if (aBoolean) {//发送连接信息
+                    GLog.println("term. session client1 conn");
+                    JsonObject res = new JsonObject();
+                    res.addProperty("sessionId", getId());
+                    res.addProperty("type", CommonBean.ClientType.CLIENT_TERMINAL);
+
+                    BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN, res);
+                    c1.sendData(baseCmdWrap);
+
+                    client1 = c1;
+                    TerminalSession.super.start();
+                }
+                return true;
+            }
+        });
+        c1.start();
     }
 }
