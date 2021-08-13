@@ -61,7 +61,7 @@ public class UserCore {
         } else {
             for (CmdConfig config : controlCore.configs) {
                 if (cmd[0].equals(config.getCmd())) {
-                    GLog.println("start conn...");
+                    GLog.println("start new cmd conn...");
                     controlCore.newClient(Integer.parseInt(cmd[1]), cmd[0]);
                     return;
                 }

@@ -61,6 +61,7 @@ public class ControlCore {
         thirdClientServer = new SocketServer();
         thirdClientServer.init(5026);
         thirdClientServer.registerOnClientConnect(socketChannel -> {
+           GLog.println("new thirdClient conn" );
             sessionManager.newCmdConn(socketChannel);
             return true;
         });

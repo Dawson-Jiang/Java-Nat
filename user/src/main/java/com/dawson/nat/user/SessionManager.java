@@ -1,6 +1,7 @@
 package com.dawson.nat.user;
 
 import com.dawson.nat.baselib.ClientWrap;
+import com.dawson.nat.baselib.GLog;
 import com.dawson.nat.baselib.NatSession;
 import com.dawson.nat.baselib.NatSessionManage;
 import com.dawson.nat.baselib.bean.CmdConfig;
@@ -64,8 +65,9 @@ public class SessionManager extends NatSessionManage {
                 TransportClient transportClient = new TransportClient();
                 transportClient.bindSocket(socketChannel);
                 ((UserSession) session).bindClient1(transportClient);
-                break;
+                return;
             }
         }
+        GLog.println("new thirdClient conn but no wait session");
     }
 }

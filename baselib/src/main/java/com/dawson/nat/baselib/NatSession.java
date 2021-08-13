@@ -73,6 +73,7 @@ public class NatSession {
         client2.registerOnDataReceived(new Function<byte[], Object>() {
             @Override
             public Object apply(byte[] bytes) {
+                GLog.println("receive client2 cmd data:" + bytes.length);
                 return client1.sendData(bytes);
             }
         });
@@ -86,6 +87,7 @@ public class NatSession {
         client1.registerOnDataReceived(new Function<byte[], Object>() {
             @Override
             public Object apply(byte[] bytes) {
+                GLog.println("receive client1 cmd data:" + bytes.length);
                 return client2.sendData(bytes);
             }
         });
