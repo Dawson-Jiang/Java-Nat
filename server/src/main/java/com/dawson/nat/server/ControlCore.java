@@ -44,6 +44,7 @@ public class ControlCore {
         });
         client.registerConnect(aBoolean -> {
             if (!aBoolean) {
+                GLog.println("control client disconn id:"+ info.getId());
                 clients.remove(clientWrap);
             }
             return true;

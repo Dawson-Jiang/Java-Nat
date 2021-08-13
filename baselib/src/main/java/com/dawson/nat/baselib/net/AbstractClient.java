@@ -122,13 +122,14 @@ public abstract class AbstractClient {
                 } while (isWork);
             } catch (Exception e) {
                 e.printStackTrace();
+            }finally {
                 //重新连接
                 if (isAutoReconnect && isWork) {
                     if (connectCallback != null) {
                         connectCallback.apply(false);
                         isStart = false;
-                        conn();
                     }
+                    conn();
                 } else {
                     close();
                 }

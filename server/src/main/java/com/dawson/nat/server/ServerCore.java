@@ -79,8 +79,8 @@ public class ServerCore {
         } else if (cmd.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN) {
             JsonObject jsonObject
                     = new Gson().fromJson(cmd.getStringValue(), JsonObject.class);
-            String sessionId = jsonObject.getAsJsonObject("sessionId").getAsString();
-            String type = jsonObject.getAsJsonObject("type").getAsString();
+            String sessionId = jsonObject.get("sessionId").getAsString();
+            String type = jsonObject.get("type").getAsString();
             GLog.println("new cmd conn sid:" + sessionId + " type:" + type);
             SessionManager.getInstance().newClient(socketChannel, sessionId, type);
         } else {
