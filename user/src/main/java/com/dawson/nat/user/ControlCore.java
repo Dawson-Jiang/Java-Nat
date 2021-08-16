@@ -33,9 +33,29 @@ public class ControlCore {
     public static final short SERVER_PORT = 5025;
 
     /**
-     * 监听第三方真实的客户端连接
+     * 当前需连接操作的终端 同一时刻只能连接操作一个终端
      */
-    private SocketServer thirdClientServer;
+    private String currentTerminal;
+
+    /**
+     * @param t_num 终端序号
+     */
+    public void setCurrentTerminal(int t_num) {
+        if (teminals == null || teminals.size() <= 0) {
+            getTerminals();
+        }
+        if ((t_num - 1) < 0 || (t_num - 1) >= teminals.size()) {
+            GLog.println("终端序号错误：" + t_num);
+        }
+        TerminalAndClientInfo tinfo = teminals.get(t_num - 1);
+        setCurrentTerminal(tinfo.getId());
+    }
+
+    public void setCurrentTerminal(String currentTerminal) {
+        this.currentTerminal = currentTerminal;
+        GLog.println("已经连接终端:" + currentTerminal + "请启动第三方客户端连接操作该终端");
+        printConfigs();
+    }
 
     /**
      * 启动客户端 连接控制服务
@@ -57,15 +77,6 @@ public class ControlCore {
             return true;
         });
         controlClient.start();
-
-        thirdClientServer = new SocketServer();
-        thirdClientServer.init(5026);
-        thirdClientServer.registerOnClientConnect(socketChannel -> {
-           GLog.println("new thirdClient conn" );
-            sessionManager.newCmdConn(socketChannel);
-            return true;
-        });
-        thirdClientServer.start();
     }
 
     /**
@@ -81,25 +92,31 @@ public class ControlCore {
         controlClient.sendData(baseCmdWrap);
     }
 
+//    /**
+//     * 发起新连接
+//     */
+//    public void newClient(int num, String cmd) {
+//        TerminalAndClientInfo clientInfo = teminals.get(num - 1);
+//
+//        JsonObject req = new JsonObject();
+//        req.addProperty("terminalId", clientInfo.getId());
+//        req.addProperty("cmd", cmd);
+//        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, req);
+//        controlClient.sendData(baseCmdWrap);
+//    }
+
     /**
-     * 发起新连接
+     * 终端列表
      */
-    public void newClient(int num, String cmd) {
-        TerminalAndClientInfo clientInfo = infos.get(num - 1);
-
-        JsonObject req = new JsonObject();
-        req.addProperty("terminalId", clientInfo.getId());
-        req.addProperty("cmd", cmd);
-        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, req);
-        controlClient.sendData(baseCmdWrap);
-    }
-
-    List<TerminalAndClientInfo> infos;
+    List<TerminalAndClientInfo> teminals;
+    /**
+     * cmd 服务配置 如shell
+     */
     List<CmdConfig> configs;
 
     private void handleData(BaseCmdWrap baseCmdWrap) {
         if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_GET_TERMINALS) {
-            infos = new Gson().fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<TerminalAndClientInfo>>() {
+            teminals = new Gson().fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<TerminalAndClientInfo>>() {
             }.getType());
             //打印信息
             printInfos();
@@ -107,16 +124,21 @@ public class ControlCore {
             //回复配置信息
             configs = gson.fromJson(baseCmdWrap.getStringValue(), new TypeToken<List<CmdConfig>>() {
             }.getType());
+            //启动监听服务
+            for (CmdConfig config : configs) {
+                startListen(config);
+            }
             //打印信息
             printConfigs();
-        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
-            JsonObject jsonObject
-                    = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
-            String sessionId = jsonObject.get("sessionId").getAsString();
-            String cmd = jsonObject.get("cmd").getAsString();
-            GLog.println("new session id:" + sessionId + " cmd:" + cmd);
-            sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
         }
+//        else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
+//            JsonObject jsonObject
+//                    = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
+//            String sessionId = jsonObject.get("sessionId").getAsString();
+//            String cmd = jsonObject.get("cmd").getAsString();
+//            GLog.println("new session id:" + sessionId + " cmd:" + cmd);
+//            sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
+//        }
     }
 
     private CmdConfig findConfig(String cmd) {
@@ -133,21 +155,41 @@ public class ControlCore {
         this.clientInfo.setType(CommonBean.ClientType.CLIENT_USER);
     }
 
+    private void startListen(final CmdConfig config) {
+        SocketServer thirdServer = new SocketServer();
+        thirdServer.init(config.getClientPort());
+        thirdServer.registerOnClientConnect(socketChannel -> {
+            GLog.println("new " + config.getCmd() + " conn");
+            if (Common.isEmpty(currentTerminal)) {
+                try {
+                    socketChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                GLog.println("new thirdClient conn but not appoint terminal");
+                return true;
+            }
+            sessionManager.createSession(controlClient, socketChannel, currentTerminal, config);
+            return true;
+        });
+        thirdServer.start();
+    }
+
     private void printInfos() {
-        GLog.println("number      id            name   ip");
-        for (int i = 0; i < infos.size(); i++) {
-            GLog.println(" " + (i + 1) + "     " + infos.get(i));
+        System.out.println("number      id            name   ip");
+        for (int i = 0; i < teminals.size(); i++) {
+            System.out.println(" " + (i + 1) + "     " + teminals.get(i));
         }
     }
 
     public void printConfigs() {
-        System.out.print("support cmd:");
+        System.out.println("支持的服务及端口:");
         if (configs == null || configs.size() <= 0) {
-            System.out.print("null");
+            System.out.print("无");
             return;
         }
         for (int i = 0; i < configs.size(); i++) {
-            System.out.print(configs.get(i).getCmd() + " ");
+            System.out.println(configs.get(i).getCmd() + " " + configs.get(i).getPort() + "->" + configs.get(i).getClientPort());
         }
     }
 }

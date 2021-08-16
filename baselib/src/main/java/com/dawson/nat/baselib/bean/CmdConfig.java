@@ -2,6 +2,7 @@ package com.dawson.nat.baselib.bean;
 
 /**
  * 支持命令 端口配置
+ *
  * @author dawson
  */
 public class CmdConfig {
@@ -18,9 +19,13 @@ public class CmdConfig {
      */
     private String client;
     /**
-     * 操作命令的客户端程序启动参数
+     * 映射的端口 如22->10248 建议10000-20000
      */
-    private String clientParam;
+    private String clientPort;
+    /**
+     * 第三方客户端程序启动后操作说明
+     */
+    private String startDes;
 
     public CmdConfig() {
     }
@@ -53,11 +58,19 @@ public class CmdConfig {
         this.client = client;
     }
 
-    public String getClientParam() {
-        return clientParam;
+    public String getClientPort() {
+        return clientPort;
     }
 
-    public void setClientParam(String clientParam) {
-        this.clientParam = clientParam;
+    public void setClientPort(String clientPort) {
+        this.clientPort = clientPort;
+    }
+
+    public String getStartDes() {
+        return startDes;
+    }
+
+    public void setStartDes(String startDes) {
+        this.startDes = startDes;
     }
 }

@@ -19,6 +19,8 @@ import java.util.function.Function;
  * @author dawson
  */
 public class UserSession extends NatSession {
+    private String terminalId;
+
     @Override
     public synchronized void start() {
         client2 = new TransportClient();
@@ -28,29 +30,22 @@ public class UserSession extends NatSession {
                 GLog.println("user session client2 conn");
                 //发送连接信息
                 JsonObject res = new JsonObject();
+                res.addProperty("terminalId", terminalId);
                 res.addProperty("sessionId", getId());
                 res.addProperty("type", CommonBean.ClientType.CLIENT_USER);
 
-                BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN, res);
+                BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, res);
                 client2.sendData(baseCmdWrap);
 
-                //带参数启动客户端
-                try {
-//                     Runtime.getRuntime().exec("C:/Windows/System32/cmd.exe /c " + getConfig().getClientParam());
-                    File cmdFile = new File(getConfig().getClient());
-                    Desktop.getDesktop().open(cmdFile);
-                    GLog.println("已经启动客户端，请在一分钟内执行：" + getConfig().getClientParam());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                super.start();
             }
             return true;
         });
         client2.start();
     }
 
-    public void bindClient1(TransportClient client) {
+    public void bindClient1(TransportClient client, String tid) {
+        terminalId = tid;
         client1 = client;
-        super.start();
     }
 }

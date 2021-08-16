@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -22,17 +23,15 @@ import java.util.function.Function;
  * @author dawson
  */
 public class SessionManager extends NatSessionManage {
-
     /**
      * 创建会话
      *
      * @param client
-     * @param sid
      * @param config
      */
-    public void createSession(ControlClient client, String sid, CmdConfig config) {
+    public void createSession(ControlClient client, SocketChannel thirdSsocket, String tid, CmdConfig config) {
         UserSession session = new UserSession();
-        session.setId(sid);
+        session.setId(UUID.randomUUID().toString());
         session.setConfig(config);
         TerminalAndClientInfo clientInfo = new TerminalAndClientInfo();
         clientInfo.setIp(ControlCore.SERVER_IP);
@@ -42,6 +41,10 @@ public class SessionManager extends NatSessionManage {
         wrap.setInfo(clientInfo);
         session.setClientWrap2(wrap);
 
+        TransportClient transportClient = new TransportClient();
+        transportClient.bindSocket(thirdSsocket);
+        session.bindClient1(transportClient, tid);
+
         session.registerOnClosed(new Function<NatSession, Object>() {
             @Override
             public Object apply(NatSession s) {
@@ -49,31 +52,9 @@ public class SessionManager extends NatSessionManage {
                 return true;
             }
         });
+
         session.start();
         cleanSession();
         sessions.add(session);
-
-    }
-
-    /**
-     * 真实的第三方客户端连接
-     *
-     * @param socketChannel
-     */
-    public void newCmdConn(SocketChannel socketChannel) {
-        for (NatSession session : sessions) {
-            if (session.getState().equals(CommonBean.SessionStateConst.STATE_READY)) {
-                TransportClient transportClient = new TransportClient();
-                transportClient.bindSocket(socketChannel);
-                ((UserSession) session).bindClient1(transportClient);
-                return;
-            }
-        }
-        try {
-            socketChannel.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        GLog.println("new thirdClient conn but no wait session");
     }
 }

@@ -58,14 +58,9 @@ public class UserCore {
             controlCore.getTerminals();
         } else if (cmd[0].equals("cs")) {
             controlCore.printConfigs();
+        }  else if (cmd[0].equals("conn")) {
+            controlCore.setCurrentTerminal(Integer.parseInt(cmd[1]));
         } else {
-            for (CmdConfig config : controlCore.configs) {
-                if (cmd[0].equals(config.getCmd())) {
-                    GLog.println("start new cmd conn...");
-                    controlCore.newClient(Integer.parseInt(cmd[1]), cmd[0]);
-                    return;
-                }
-            }
             printHelp();
         }
     }
@@ -73,7 +68,7 @@ public class UserCore {
     private static void printHelp() {
         GLog.println("ts 列表已经注册的终端");
         GLog.println("cs 查看支持的命令配置");
-        GLog.println("cmd num ,发起连接cmd命令 如ssh,num终端列表中的序号");
+        GLog.println("conn num ,发起连接cmd命令 如ssh,num终端列表中的序号");
         GLog.println("h|help 查看帮助");
         GLog.println("exit 退出");
     }
