@@ -34,7 +34,7 @@ public class UserSession extends NatSession {
                 res.addProperty("userId", userId);
                 res.addProperty("terminalId", terminalId);
                 res.addProperty("sessionId", getId());
-                res.addProperty("type", CommonBean.ClientType.CLIENT_USER);
+                res.addProperty("cmd", getConfig().getCmd());
 
                 BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, res);
                 client2.sendData(baseCmdWrap);
