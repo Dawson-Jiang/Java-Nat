@@ -21,7 +21,7 @@ public class CmdConfig {
     /**
      * 映射的端口 如22->10248 建议10000-20000
      */
-    private String clientPort;
+    private short clientPort;
     /**
      * 第三方客户端程序启动后操作说明
      */
@@ -58,11 +58,11 @@ public class CmdConfig {
         this.client = client;
     }
 
-    public String getClientPort() {
+    public short getClientPort() {
         return clientPort;
     }
 
-    public void setClientPort(String clientPort) {
+    public void setClientPort(short clientPort) {
         this.clientPort = clientPort;
     }
 

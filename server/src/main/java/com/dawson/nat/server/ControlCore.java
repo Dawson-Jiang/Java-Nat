@@ -13,6 +13,7 @@ import com.dawson.nat.baselib.net.TransportClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,9 +82,21 @@ public class ControlCore {
             ClientWrap c1 = findClient(uid);
             String tid = param.get("terminalId").getAsString();
             ClientWrap c2 = findClient(tid);
+            if (c1 == null || c2 == null) {
+                GLog.println("指定连接的终端不存在或已离线");
+                try {
+                    socketChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             String cmd = param.get("cmd").getAsString();
             CmdConfig config = findConfig(cmd);
-            SessionManager.getInstance().createSession(c1, c2, config);
+
+            TransportClient client1 = new TransportClient();
+            client1.bindSocket(socketChannel);
+            SessionManager.getInstance().createSession(sid, c1, c2, client1, config);
         } else {
             //已有该session 表示该链接是terminal 直接绑定
             TransportClient client = new TransportClient();

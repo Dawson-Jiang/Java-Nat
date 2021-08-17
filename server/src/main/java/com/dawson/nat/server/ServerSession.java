@@ -25,16 +25,9 @@ public class ServerSession extends NatSession {
 
     public void bindClient1(TransportClient client) {
         client1 = client;
-        super.start();
     }
-
     public void bindClient2(TransportClient client) {
         client2 = client;
-        JsonObject req = new JsonObject();
-        req.addProperty("sessionId", getId());
-        req.addProperty("cmd", getConfig().getCmd());
-        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, req);
-        //给客户端发送新连接的命令
-        getClientWrap1().getClient().sendData(baseCmdWrap);
+        super.start();
     }
 }

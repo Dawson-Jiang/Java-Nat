@@ -17,7 +17,7 @@ import java.util.function.Function;
  * @author dawson
  */
 public class SocketServer {
-    private int port;
+    private short port;
     protected boolean isWork;
     protected boolean isStart;
     protected ExecutorService executor = ExecutorUtil.getCommonExecutor();
@@ -26,7 +26,7 @@ public class SocketServer {
 
     public void init(Object... params) {
         if (params != null && params.length > 0) {
-            this.port = (int) params[0];
+            this.port = (short) params[0];
         }
     }
 

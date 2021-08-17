@@ -75,19 +75,17 @@ public class ServerCore {
             GLog.println("reg new client id:" + info.getId() + " name:" + info.getName() + " type:" + info.getType());
             controlCore.newClient(socketChannel, info);
         } else if (cmd.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
-            JsonObject jsonObject
+            JsonObject param
                     = new Gson().fromJson(cmd.getStringValue(), JsonObject.class);
-            String sessionId = jsonObject.get("sessionId").getAsString();
-            String type = jsonObject.get("type").getAsString();
-            GLog.println("new cmd conn sid:" + sessionId + " type:" + type);
-            controlCore.newClient(socketChannel, jsonObject);
+            GLog.println("new session:" + param);
+            controlCore.newClient(socketChannel, param);
         } else {
             try {
                 socketChannel.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            GLog.println("new conn but conn info erro");
+            GLog.println("new conn but conn info error");
         }
     }
 }

@@ -35,12 +35,13 @@ public class SessionManager extends NatSessionManage {
         return instance;
     }
 
-    public synchronized void createSession(ClientWrap c1, ClientWrap c2, final CmdConfig config) {
+    public synchronized void createSession(String sid, ClientWrap c1, ClientWrap c2, TransportClient client1, final CmdConfig config) {
         ServerSession session = new ServerSession();
-        session.setId(UUID.randomUUID().toString());
+        session.setId(sid);
         session.setClientWrap1(c1);
         session.setClientWrap2(c2);
         session.setConfig(config);
+        session.bindClient1(client1);
         session.registerOnClosed(new Function<NatSession, Object>() {
             @Override
             public Object apply(NatSession s) {
@@ -51,7 +52,6 @@ public class SessionManager extends NatSessionManage {
         session.start();
         cleanSession();
         sessions.add(session);
-
     }
 
     public ServerSession findSession(String sid) {
