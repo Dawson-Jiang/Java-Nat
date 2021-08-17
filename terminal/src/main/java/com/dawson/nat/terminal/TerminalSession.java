@@ -24,9 +24,8 @@ public class TerminalSession extends NatSession {
                 GLog.println("term. session client1 conn");
                 JsonObject res = new JsonObject();
                 res.addProperty("sessionId", getId());
-                res.addProperty("type", CommonBean.ClientType.CLIENT_TERMINAL);
 
-                BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN, res);
+                BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, res);
                 c1.sendData(baseCmdWrap);
 
                 client1 = c1;
