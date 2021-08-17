@@ -22,14 +22,14 @@ public class UserCore {
 
     public static void main(String[] args) {
         GLog.println("start...");
-        TerminalAndClientInfo clientInfo = new TerminalAndClientInfo();
+        TerminalAndClientInfo userInfo = new TerminalAndClientInfo();
         String[] im = Common.getIPAndMac();
         if (im != null) {
-            clientInfo.setIp(im[0]);
-            clientInfo.setId(im[1]);
+            userInfo.setIp(im[0]);
+            userInfo.setId(im[1]);
         }
-        clientInfo.setName("U001");
-        controlCore.setClientInfo(clientInfo);
+        userInfo.setName("U001");
+        controlCore.setUserInfo(userInfo);
         controlCore.start();
         GLog.println("please input cmd...");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));

@@ -1,5 +1,6 @@
 package com.dawson.nat.server;
 
+import com.dawson.nat.baselib.ClientWrap;
 import com.dawson.nat.baselib.DataUtil;
 import com.dawson.nat.baselib.GLog;
 import com.dawson.nat.baselib.bean.CmdConfig;
@@ -70,19 +71,16 @@ public class ServerCore {
             return;
         }
         if (cmd.getType() == CommonBean.ControlTypeConst.TYPE_REG_INFO) {
-            final ControlClient controlClient = new ControlClient();
-            controlClient.setAutoReconnect(false);
-            controlClient.bindSocket(socketChannel);
             TerminalAndClientInfo info = new Gson().fromJson(cmd.getStringValue(), TerminalAndClientInfo.class);
             GLog.println("reg new client id:" + info.getId() + " name:" + info.getName() + " type:" + info.getType());
-            controlCore.newClient(controlClient, info);
-        } else if (cmd.getType() == CommonBean.ControlTypeConst.TYPE_NEW_CMD_CONN) {
+            controlCore.newClient(socketChannel, info);
+        } else if (cmd.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
             JsonObject jsonObject
                     = new Gson().fromJson(cmd.getStringValue(), JsonObject.class);
             String sessionId = jsonObject.get("sessionId").getAsString();
             String type = jsonObject.get("type").getAsString();
             GLog.println("new cmd conn sid:" + sessionId + " type:" + type);
-            SessionManager.getInstance().newClient(socketChannel, sessionId, type);
+            controlCore.newClient(socketChannel, jsonObject);
         } else {
             try {
                 socketChannel.close();

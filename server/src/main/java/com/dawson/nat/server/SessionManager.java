@@ -54,18 +54,12 @@ public class SessionManager extends NatSessionManage {
 
     }
 
-    public void newClient(SocketChannel socketChannel, String sid, String type) {
+    public ServerSession findSession(String sid) {
         for (NatSession session : sessions) {
             if (session.getId().equals(sid)) {
-                TransportClient client = new TransportClient();
-                client.bindSocket(socketChannel);
-                if (type.equals(CommonBean.ClientType.CLIENT_USER)) {
-                    ((ServerSession) session).bindClient1(client);
-                } else {
-                    ((ServerSession) session).bindClient2(client);
-                }
-                break;
+                return (ServerSession) session;
             }
         }
+        return null;
     }
 }

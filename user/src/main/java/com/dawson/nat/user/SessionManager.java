@@ -29,7 +29,7 @@ public class SessionManager extends NatSessionManage {
      * @param client
      * @param config
      */
-    public void createSession(ControlClient client, SocketChannel thirdSsocket, String tid, CmdConfig config) {
+    public void createSession(ControlClient client, SocketChannel thirdSsocket, String tid, String uid, CmdConfig config) {
         UserSession session = new UserSession();
         session.setId(UUID.randomUUID().toString());
         session.setConfig(config);
@@ -43,7 +43,7 @@ public class SessionManager extends NatSessionManage {
 
         TransportClient transportClient = new TransportClient();
         transportClient.bindSocket(thirdSsocket);
-        session.bindClient1(transportClient, tid);
+        session.bindClient1(transportClient, tid, uid);
 
         session.registerOnClosed(new Function<NatSession, Object>() {
             @Override

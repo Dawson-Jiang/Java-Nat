@@ -26,7 +26,7 @@ import java.util.function.Function;
 public class ControlCore {
     private ControlClient controlClient = new ControlClient();
     private boolean isConnect;
-    private TerminalAndClientInfo clientInfo;
+    private TerminalAndClientInfo userInfo;
     private Gson gson = new Gson();
     private SessionManager sessionManager = new SessionManager();
     public static final String SERVER_IP = "192.168.0.3";
@@ -83,7 +83,7 @@ public class ControlCore {
      * 注册信息
      */
     private void rgInfo() {
-        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_REG_INFO, clientInfo);
+        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_REG_INFO, userInfo);
         controlClient.sendData(baseCmdWrap);
     }
 
@@ -91,19 +91,6 @@ public class ControlCore {
         BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_GET_TERMINALS, "");
         controlClient.sendData(baseCmdWrap);
     }
-
-//    /**
-//     * 发起新连接
-//     */
-//    public void newClient(int num, String cmd) {
-//        TerminalAndClientInfo clientInfo = teminals.get(num - 1);
-//
-//        JsonObject req = new JsonObject();
-//        req.addProperty("terminalId", clientInfo.getId());
-//        req.addProperty("cmd", cmd);
-//        BaseCmdWrap baseCmdWrap = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_NEW_SESSION, req);
-//        controlClient.sendData(baseCmdWrap);
-//    }
 
     /**
      * 终端列表
@@ -131,28 +118,11 @@ public class ControlCore {
             //打印信息
             printConfigs();
         }
-//        else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
-//            JsonObject jsonObject
-//                    = gson.fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
-//            String sessionId = jsonObject.get("sessionId").getAsString();
-//            String cmd = jsonObject.get("cmd").getAsString();
-//            GLog.println("new session id:" + sessionId + " cmd:" + cmd);
-//            sessionManager.createSession(controlClient, sessionId, findConfig(cmd));
-//        }
     }
 
-    private CmdConfig findConfig(String cmd) {
-        for (CmdConfig config : configs) {
-            if (config.getCmd().equals(cmd)) {
-                return config;
-            }
-        }
-        return null;
-    }
-
-    public void setClientInfo(TerminalAndClientInfo clientInfo) {
-        this.clientInfo = clientInfo;
-        this.clientInfo.setType(CommonBean.ClientType.CLIENT_USER);
+    public void setUserInfo(TerminalAndClientInfo userInfo) {
+        this.userInfo = userInfo;
+        this.userInfo.setType(CommonBean.ClientType.CLIENT_USER);
     }
 
     private void startListen(final CmdConfig config) {
@@ -169,7 +139,7 @@ public class ControlCore {
                 GLog.println("new thirdClient conn but not appoint terminal");
                 return true;
             }
-            sessionManager.createSession(controlClient, socketChannel, currentTerminal, config);
+            sessionManager.createSession(controlClient, socketChannel, currentTerminal,userInfo.getId(), config);
             return true;
         });
         thirdServer.start();

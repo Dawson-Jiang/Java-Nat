@@ -3,14 +3,17 @@ package com.dawson.nat.server;
 import com.dawson.nat.baselib.ClientWrap;
 import com.dawson.nat.baselib.DataUtil;
 import com.dawson.nat.baselib.GLog;
+import com.dawson.nat.baselib.NatSession;
 import com.dawson.nat.baselib.bean.CmdConfig;
 import com.dawson.nat.baselib.bean.CommonBean;
 import com.dawson.nat.baselib.bean.TerminalAndClientInfo;
 import com.dawson.nat.baselib.net.BaseCmdWrap;
 import com.dawson.nat.baselib.net.ControlClient;
+import com.dawson.nat.baselib.net.TransportClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -24,27 +27,32 @@ public class ControlCore {
     protected List<ClientWrap> clients = new ArrayList<>();
     List<CmdConfig> configs = DataUtil.getConfigs();
 
-    public void newClient(ControlClient client, TerminalAndClientInfo info) {
+    public void newClient(SocketChannel socket, TerminalAndClientInfo info) {
+        final ControlClient controlClient = new ControlClient();
+        controlClient.setAutoReconnect(false);
+        controlClient.bindSocket(socket);
+
         final ClientWrap clientWrap = new ClientWrap();
-        clientWrap.setClient(client);
+        clientWrap.setClient(controlClient);
         clientWrap.setInfo(info);
+
         if (clients.contains(clientWrap)) {
-            client.close();
+            controlClient.close();
             return;
         }
         //回复配置信息
         BaseCmdWrap res = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_REG_INFO, configs);
         clientWrap.getClient().sendData(res);
-        client.addOnDataReceived(new Function<BaseCmdWrap, Object>() {
+        controlClient.addOnDataReceived(new Function<BaseCmdWrap, Object>() {
             @Override
             public Object apply(BaseCmdWrap baseCmdWrap) {
                 handleCmd(clientWrap, baseCmdWrap);
                 return null;
             }
         });
-        client.registerConnect(aBoolean -> {
+        controlClient.registerConnect(aBoolean -> {
             if (!aBoolean) {
-                GLog.println("control client disconn id:"+ info.getId());
+                GLog.println("control client disconn id:" + info.getId());
                 clients.remove(clientWrap);
             }
             return true;
@@ -60,14 +68,27 @@ public class ControlCore {
                     .collect(Collectors.toList());
             BaseCmdWrap res = new BaseCmdWrap(CommonBean.ControlTypeConst.TYPE_GET_TERMINALS, infos);
             clientWrap.getClient().sendData(res);
-        } else if (baseCmdWrap.getType() == CommonBean.ControlTypeConst.TYPE_NEW_SESSION) {
-            JsonObject param = new Gson().fromJson(baseCmdWrap.getStringValue(), JsonObject.class);
+        }
+    }
+
+    public void newClient(SocketChannel socketChannel, JsonObject param) {
+        String sid = param.get("sessionId").getAsString();
+
+        ServerSession session = SessionManager.getInstance().findSession(sid);
+        if (session == null) {
+            //没有该session 需要创建一个session
+            String uid = param.get("userId").getAsString();
+            ClientWrap c1 = findClient(uid);
             String tid = param.get("terminalId").getAsString();
-            ClientWrap t = findClient(tid);
+            ClientWrap c2 = findClient(tid);
             String cmd = param.get("cmd").getAsString();
             CmdConfig config = findConfig(cmd);
-            GLog.println("new session tid:" + tid + " cmd " + cmd);
-            SessionManager.getInstance().createSession(clientWrap, t, config);
+            SessionManager.getInstance().createSession(c1, c2, config);
+        } else {
+            //已有该session 表示该链接是terminal 直接绑定
+            TransportClient client = new TransportClient();
+            client.bindSocket(socketChannel);
+            session.bindClient2(client);
         }
     }
 

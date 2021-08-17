@@ -14,12 +14,13 @@ import java.io.IOException;
 import java.util.function.Function;
 
 /**
- * 该会话中，client2 指用服务器的信息和连接  client1指本机命令的信息和连接 如shell
+ * 该会话中，client2 服务器的信息和连接  client1指第三方客户端的信息和连接 如shell
  *
  * @author dawson
  */
 public class UserSession extends NatSession {
     private String terminalId;
+    private String userId;
 
     @Override
     public synchronized void start() {
@@ -30,6 +31,7 @@ public class UserSession extends NatSession {
                 GLog.println("user session client2 conn");
                 //发送连接信息
                 JsonObject res = new JsonObject();
+                res.addProperty("userId", userId);
                 res.addProperty("terminalId", terminalId);
                 res.addProperty("sessionId", getId());
                 res.addProperty("type", CommonBean.ClientType.CLIENT_USER);
@@ -44,7 +46,8 @@ public class UserSession extends NatSession {
         client2.start();
     }
 
-    public void bindClient1(TransportClient client, String tid) {
+    public void bindClient1(TransportClient client, String tid, String uid) {
+        userId = uid;
         terminalId = tid;
         client1 = client;
     }
